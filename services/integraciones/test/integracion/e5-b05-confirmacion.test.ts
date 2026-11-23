@@ -257,7 +257,14 @@ describe('E5-B05#11 · dos Administradores', () => {
     const v = await version(id);
     const [a, b] = await Promise.all([confirmar(id, v, 'adm1'), confirmar(id, v, 'adm2')]);
     const estados = [a.status, b.status].sort();
-    assert.deepEqual(estados, [200, 409]);
+    assert.deepEqual(
+      estados,
+      [200, 409],
+      `Confirmaciones concurrentes: ${JSON.stringify([
+        { status: a.status, codigo: a.body?.codigo },
+        { status: b.status, codigo: b.body?.codigo },
+      ])}`,
+    );
     const perdedora = a.status === 409 ? a : b;
     assert.ok(['INTEGRACION_EN_CURSO', 'CONSULTA_NO_ABIERTA', 'CONSULTA_MODIFICADA'].includes(perdedora.body.codigo), perdedora.body.codigo);
     assert.equal(org.hdus.size, 4);
